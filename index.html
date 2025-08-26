@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AYPG-BS Biostatistics – PG Scholar Assessment</title>
+  <style>
+    :root{
+      --bg:#0b1020; --card:#111831; --ink:#e9eefc; --muted:#b9c3e6; --accent:#6ea8fe; --ok:#34d399; --warn:#f59e0b; --bad:#ef4444;
+    }
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;}
+    .container{max-width:1100px;margin:32px auto;padding:0 16px;}
+    .card{background:var(--card);border:1px solid rgba(255,255,255,.08);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.25);}
+    header.card{padding:20px 24px;margin-bottom:20px;}
+    header h1{margin:0 0 6px;font-size:clamp(22px,3.5vw,32px);}
+    header p{margin:4px 0;color:var(--muted)}
+    .grid{display:grid;gap:16px}
+    .two{grid-template-columns:1fr;}
+    @media (min-width:900px){.two{grid-template-columns:1.1fr .9fr}}
+    .section{padding:20px 24px}
+    .section h2{margin:0 0 12px;font-size:20px}
+    .pill{display:inline-flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.06);padding:6px 10px;border-radius:999px;font-size:12px;color:var(--muted)}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    input[type="text"],input[type="email"],select{background:#0e142b;color:var(--ink);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 12px;width:100%}
+    .btn{appearance:none;border:none;cursor:pointer;border-radius:12px;padding:12px 16px;font-weight:600;color:#0c1226;background:var(--ink)}
+    .btn.primary{background:var(--accent);color:#0c1226}
+    .btn.ghost{background:transparent;color:var(--ink);border:1px solid rgba(255,255,255,.15)}
+    .btnbar{display:flex;gap:10px;flex-wrap:wrap}
+    .q{padding:16px;border:1px solid rgba(255,255,255,.08);border-radius:12px;margin-bottom:12px}
+    .q h4{margin:0 0 8px;font-size:16px}
+    .opt{display:block;margin:8px 0;padding:10px 12px;background:#0e142b;border:1px solid rgba(255,255,255,.08);border-radius:10px}
+    .meta{font-size:12px;color:var(--muted)}
+    .hidden{display:none}
+    .report{padding:20px;border:1px solid rgba(255,255,255,.12);border-radius:14px}
+    .score{font-size:32px;font-weight:800}
+    .good{color:var(--ok)}.mid{color:var(--warn)}.bad{color:var(--bad)}
+    details{background:#0e142b;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;margin:8px 0}
+    summary{cursor:pointer}
+    .kbd{background:#0b1020;border:1px solid rgba(255,255,255,.15);padding:2px 6px;border-radius:6px;font-family:ui-monospace,monospace}
+    .footer{opacity:.7;font-size:12px;margin-top:24px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="card">
+      <h1>AYPG‑BS Biostatistics – PG Scholar Assessment</h1>
+      <p>Based on NCISM Semester I curriculum (2024–25): 6 modules × 10 MCQs each = 60 questions. Instant scoring + detailed report.</p>
+      <div class="row" style="margin-top:8px">
+        <span class="pill">Subject Code: AYPG‑BS</span>
+        <span class="pill">Prepared for: PG Scholars (MD/MS Ayurveda)</span>
+        <span class="pill">Mode: Self‑assessment / Formative</span>
+      </div>
+    </header>
+
+    <div class="grid two">
+      <section class="card section">
+        <h2>Learner Info</h2>
+        <div class="row">
+          <div style="flex:1 1 280px"><label for="name" class="meta">Full name</label><input id="name" type="text" placeholder="e.g., A. Sharma" /></div>
+          <div style="flex:1 1 260px"><label for="email" class="meta">Email (optional)</label><input id="email" type="email" placeholder="e.g., scholar@college.edu" /></div>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <div style="flex:1 1 220px"><label for="moduleFilter" class="meta">Filter by module (optional)</label>
+            <select id="moduleFilter">
+              <option value="ALL">All modules</option>
+            </select>
+          </div>
+          <div class="btnbar" style="margin-left:auto">
+            <button class="btn ghost" id="btnSelectAll">Show all</button>
+            <button class="btn ghost" id="btnCollapse">Collapse all</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card section">
+        <h2>Instructions</h2>
+        <ul class="meta">
+          <li>Choose the best answer for each item. You can attempt module‑wise or the full set.</li>
+          <li>Click <span class="kbd">Submit & Report</span> to see your overall score, module‑wise performance, and detailed rationales.</li>
+          <li>Your responses are evaluated instantly in the browser; no data leaves your device.</li>
+        </ul>
+        <div class="btnbar" style="margin-top:10px">
+          <button class="btn primary" id="submitBtn">Submit & Report</button>
+          <button class="btn" id="resetBtn">Reset</button>
+        </div>
+      </section>
+    </div>
+
+    <section class="card section" id="quizHost">
+      <h2>Questions</h2>
+      <div id="quiz"></div>
+    </section>
+
+    <section class="card section hidden" id="reportCard">
+      <h2>Report</h2>
+      <div class="report" id="report"></div>
+      <div class="btnbar" style="margin-top:12px">
+        <button class="btn" id="btnPrint">Print / Save as PDF</button>
+        <button class="btn ghost" id="btnDownloadJson">Download JSON</button>
+      </div>
+      <p class="footer">Tip: On GitHub Pages, use your browser’s Print dialog to save a signed PDF record for portfolios or modular assessments.</p>
+    </section>
+  </div>
+
+  <script>
+    // ------------------ Quiz Data ------------------
+    // 6 modules × 10 MCQs each. Each item: {id, stem, options, answer (index), rationale, tags}
+    const QUIZ = [
+      {
+        id: 'M1', title: 'Module 1 – Fundamentals of Statistics',
+        lo: ['Definition/scope & misuse', 'Data types/variables', 'Descriptive stats', 'Tabular/graphical display'],
+        items: [
+          { id:'M1Q1', stem:'Which statement best describes biostatistics in Ayurveda research?', options:[
+              'It focuses only on laboratory data unrelated to clinical practice.',
+              'It applies statistical methods to biomedical data including clinical, experimental, and textual analyses.',
+              'It replaces clinical judgment with numerical algorithms.',
+              'It is limited to calculating averages in clinical datasets.'
+            ], answer:1, rationale:'Biostatistics applies statistical reasoning to biomedical problems across clinical, experimental, and other data streams.', tags:['scope'] },
+          { id:'M1Q2', stem:'Identify the correct match of scale with example.', options:[
+              'Nominal – Hb level in g/dL',
+              'Ordinal – Pain scale (None, Mild, Moderate, Severe)',
+              'Interval – Absolute neutrophil count',
+              'Ratio – Calendar year'
+            ], answer:1, rationale:'Ordinal data has inherent order without equal intervals; pain categories are ordered.', tags:['data types'] },
+          { id:'M1Q3', stem:'For a right‑skewed distribution, which measure is most robust to outliers?', options:[
+              'Mean', 'Median', 'Standard deviation', 'Coefficient of variation'
+            ], answer:1, rationale:'Median is resistant to extreme values and better represents central tendency in skew.', tags:['central tendency'] },
+          { id:'M1Q4', stem:'Which graphic is MOST appropriate for visualizing a single continuous variable’s distribution?', options:[
+              'Histogram', 'Pie chart', 'Stacked bar for proportions', 'Clustered bar chart'
+            ], answer:0, rationale:'Histograms display frequency distribution for continuous data.', tags:['graphics'] },
+          { id:'M1Q5', stem:'Coefficient of variation (CV) is defined as:', options:[
+              'SD / Mean × 100%', 'Mean / SD × 100%', 'Variance / Mean', 'Mean – Median'
+            ], answer:0, rationale:'CV = (SD / Mean) × 100% to compare relative dispersion across scales.', tags:['dispersion'] },
+          { id:'M1Q6', stem:'A dataset has strong outliers. The best summary pair is:', options:[
+              'Mean and SD', 'Median and IQR', 'Mode and Range', 'Mean and CV'
+            ], answer:1, rationale:'Median with IQR is robust to outliers.', tags:['robust summaries'] },
+          { id:'M1Q7', stem:'Which is an example of misuse of statistics?', options:[
+              'Reporting 95% CI with estimates', 'Selective reporting of significant outcomes only', 'Pre‑specifying primary outcomes', 'Using CONSORT‑aligned figures'
+            ], answer:1, rationale:'Selective reporting inflates false‑positive findings (reporting bias).', tags:['misuse'] },
+          { id:'M1Q8', stem:'Which plot best compares distributions (spread, skew) across multiple groups?', options:[
+              'Box plot', 'Pie chart', 'Doughnut chart', 'Line plot of means only'
+            ], answer:0, rationale:'Box plots show median, IQR, whiskers, and outliers for quick comparison.', tags:['graphics'] },
+          { id:'M1Q9', stem:'Mode is most useful when data are:', options:[
+              'Symmetric continuous', 'Categorical with repeating categories', 'Normally distributed', 'Measured on ratio scale only'
+            ], answer:1, rationale:'Mode identifies the most frequent category/value; useful in categorical data.', tags:['mode'] },
+          { id:'M1Q10', stem:'Which pair is correctly matched?', options:[
+              'Range – robust to outliers', 'Quartile deviation – based on IQR', 'SD – median‑based spread', 'Percentile – always equals quartile'
+            ], answer:1, rationale:'Quartile deviation (semi‑IQR) derives from IQR and is robust to outliers.', tags:['dispersion'] },
+        ]
+      },
+      {
+        id: 'M2', title: 'Module 2 – Probability, Distributions, Sampling & Sample Size',
+        lo: ['Probability & laws', 'Normal/binomial/Poisson', 'SE & CI', 'Sampling techniques', 'Sample size basics'],
+        items:[
+          { id:'M2Q1', stem:'Two events A and B are independent. Then P(A ∩ B) equals:', options:[ 'P(A)+P(B)', 'P(A)×P(B)', 'P(A|B)', 'P(A)+P(B)−1' ], answer:1, rationale:'For independent events, joint probability multiplies: P(A∩B)=P(A)P(B).', tags:['probability'] },
+          { id:'M2Q2', stem:'Which is TRUE for a standard normal variable Z?', options:[ 'Mean 0, SD 1', 'Mean 1, SD 0', 'Mean 0, variance 2', 'Skew > 0 by definition' ], answer:0, rationale:'Standard normal has mean 0 and SD 1.', tags:['normal'] },
+          { id:'M2Q3', stem:'Shapiro–Wilk test primarily assesses:', options:[ 'Equality of variances', 'Normality of a sample', 'Independence of observations', 'Equality of means' ], answer:1, rationale:'Shapiro–Wilk is a formal test for normality.', tags:['normality test'] },
+          { id:'M2Q4', stem:'Poisson distribution is appropriate when:', options:[ 'Fixed trials with success/failure', 'Counts of rare events per unit time/area', 'Continuous outcomes with symmetry', 'Ranked outcomes' ], answer:1, rationale:'Poisson models counts of rare events in a fixed interval.', tags:['poisson'] },
+          { id:'M2Q5', stem:'Standard Error (SE) of the mean reflects:', options:[ 'Spread of individual observations', 'Uncertainty in estimating the population mean', 'Difference between two proportions', 'Effect size magnitude' ], answer:1, rationale:'SE quantifies sampling variability of an estimator.', tags:['SE'] },
+          { id:'M2Q6', stem:'A 95% confidence interval for a mean that excludes 0 implies:', options:[ 'Type I error occurred', 'Estimator is unbiased', 'At α=0.05, corresponding two‑sided test would reject H0: μ=0', 'Sample is normally distributed' ], answer:2, rationale:'Equivalence between two‑sided test and CI exclusion at same α.', tags:['CI & testing'] },
+          { id:'M2Q7', stem:'Simple random sampling ensures:', options:[ 'Equal chance for each element', 'Fixed cluster sizes', 'Strata are proportional', 'Convenient on‑site access' ], answer:0, rationale:'SRS gives each unit equal probability.', tags:['sampling'] },
+          { id:'M2Q8', stem:'Which non‑probability sampling suits early exploratory clinic audits?', options:[ 'Stratified random', 'Convenience sampling', 'Systematic random', 'Two‑stage cluster' ], answer:1, rationale:'Convenience sampling is common in preliminary/exploratory contexts.', tags:['nonprobability'] },
+          { id:'M2Q9', stem:'Increasing desired power from 80% to 90% generally requires:', options:[ 'Smaller sample size', 'Larger sample size', 'No change in sample size', 'Eliminating randomization' ], answer:1, rationale:'Higher power → larger n, all else equal.', tags:['sample size'] },
+          { id:'M2Q10', stem:'For estimating a single population proportion with margin of error d, n is roughly proportional to:', options:[ '1/d', '1/d^2', 'd', 'd^2' ], answer:1, rationale:'Precision increases with n ∝ 1/d^2.', tags:['sample size'] },
+        ]
+      },
+      {
+        id: 'M3', title: 'Module 3 – Tests of Significance & Parametric Tests',
+        lo: ['Hypothesis testing basics', 'Type I/II errors & power', 'Parametric tests (Z,t,F,ANOVA)'],
+        items:[
+          { id:'M3Q1', stem:'Type I error (α) is:', options:[ 'Failing to reject a false H0', 'Rejecting a true H0', 'Power of a test', 'Probability H0 is true' ], answer:1, rationale:'Type I: false positive = reject true H0.', tags:['errors'] },
+          { id:'M3Q2', stem:'Power (1−β) increases when:', options:[ 'Sample size decreases', 'Effect size increases', 'Variance increases', 'α decreases' ], answer:1, rationale:'Larger effect → easier detection (other factors equal).', tags:['power'] },
+          { id:'M3Q3', stem:'Independent samples t‑test requires which key assumption?', options:[ 'Equal medians', 'Paired data', 'Approximately normal within groups (or large n)', 'Poisson counts' ], answer:2, rationale:'Parametric t‑test assumes normality for small samples and independent groups.', tags:['t test'] },
+          { id:'M3Q4', stem:'Choose the correct test: same group, pre‑ vs post‑treatment, continuous outcome, n=20.', options:[ 'Independent t‑test', 'Paired t‑test', 'One‑way ANOVA', 'Chi‑square' ], answer:1, rationale:'Paired design → paired t‑test.', tags:['paired'] },
+          { id:'M3Q5', stem:'Z‑test vs t‑test: Z‑test is preferred when:', options:[ 'Population SD known or very large n', 'Small n with unknown SD', 'Outcome is categorical', 'Data are ranks' ], answer:0, rationale:'Z uses known σ or large‑sample normal approximation.', tags:['z test'] },
+          { id:'M3Q6', stem:'ANOVA tests equality of:', options:[ 'Variances across groups', 'Means across ≥3 groups', 'Proportions across ≥3 groups', 'Medians across ≥3 groups' ], answer:1, rationale:'One‑way ANOVA compares group means.', tags:['anova'] },
+          { id:'M3Q7', stem:'Repeated measures ANOVA is suitable for:', options:[ 'One time‑point, 3 groups', 'Multiple time‑points on same subjects', 'Two independent groups', 'Counts per hour' ], answer:1, rationale:'RM‑ANOVA handles within‑subject repeated measures.', tags:['rm anova'] },
+          { id:'M3Q8', stem:'P‑value represents:', options:[ 'Pr(H0 true | data)', 'Pr(data as or more extreme | H0 true)', 'Effect size magnitude', 'Probability of Type II error' ], answer:1, rationale:'Frequentist definition of p‑value.', tags:['p value'] },
+          { id:'M3Q9', stem:'Post hoc tests (e.g., Tukey) are used after:', options:[ 'Non‑significant ANOVA', 'Significant ANOVA to localize group differences', 'Normality test', 'Variance homogeneity test only' ], answer:1, rationale:'They identify which pairs differ after global significance.', tags:['post hoc'] },
+          { id:'M3Q10', stem:'For unequal variances across groups, an alternative to classic t‑test is:', options:[ 'Welch’s t‑test', 'Sign test', 'McNemar test', 'Friedman test' ], answer:0, rationale:'Welch adjusts for heteroscedasticity with independent groups.', tags:['welch'] },
+        ]
+      },
+      {
+        id: 'M4', title: 'Module 4 – Non‑parametric Tests',
+        lo: ['When to use non‑parametrics', 'Chi‑square/Fisher/McNemar', 'Wilcoxon/Mann‑Whitney', 'Kruskal‑Wallis/Friedman'],
+        items:[
+          { id:'M4Q1', stem:'A hallmark reason to choose a non‑parametric test is:', options:[ 'Perfect normality', 'Small n with heavy skew or ordinal data', 'Known population SD', 'Equal group sizes' ], answer:1, rationale:'NP tests handle non‑normal/ordinal data and small n better.', tags:['np rationale'] },
+          { id:'M4Q2', stem:'Best test for 2 independent groups, ordinal outcome:', options:[ 'Paired t‑test', 'Mann‑Whitney U', 'Wilcoxon signed‑rank', 'McNemar' ], answer:1, rationale:'Mann‑Whitney compares distributions/medians for independent groups.', tags:['mann whitney'] },
+          { id:'M4Q3', stem:'Wilcoxon signed‑rank is analogous to:', options:[ 'Independent t‑test', 'Paired t‑test', 'One‑way ANOVA', 'Chi‑square' ], answer:1, rationale:'Wilcoxon SR is the NP counterpart to paired t‑test.', tags:['wilcoxon'] },
+          { id:'M4Q4', stem:'Chi‑square test of independence requires expected counts ideally ≥:', options:[ '1 in all cells', '5 in most cells', '10 in all cells', '20 in diagonal cells' ], answer:1, rationale:'Rule of thumb: expected ≥5 in most cells; else consider Fisher’s exact.', tags:['chi-square'] },
+          { id:'M4Q5', stem:'Fisher’s exact test is preferred when:', options:[ 'Large samples', 'Sparse contingency tables (small counts)', 'Continuous outcomes', 'Time‑to‑event outcomes' ], answer:1, rationale:'Exact test for small sample categorical tables.', tags:['fisher'] },
+          { id:'M4Q6', stem:'McNemar’s test is used for:', options:[ 'Matched pairs, binary outcomes (pre/post)', 'Independent groups, binary', '≥3 related groups, ordinal', 'Time‑to‑event data' ], answer:0, rationale:'McNemar compares paired binary responses.', tags:['mcnemar'] },
+          { id:'M4Q7', stem:'Kruskal–Wallis is NP alternative to:', options:[ 'One‑way ANOVA (independent groups)', 'Repeated measures ANOVA', 'Two‑sample t‑test', 'Chi‑square' ], answer:0, rationale:'KW compares k independent groups with ordinal/non‑normal data.', tags:['kw'] },
+          { id:'M4Q8', stem:'Friedman test handles:', options:[ 'k independent groups', 'k related measures (blocks/subjects)', 'Two independent groups', 'Proportions across strata' ], answer:1, rationale:'Friedman is NP repeated‑measures ANOVA analogue.', tags:['friedman'] },
+          { id:'M4Q9', stem:'After significant Kruskal–Wallis, a suitable post hoc is:', options:[ 'Tukey HSD', 'Dunn test with adjustment', 'Bonferroni t‑tests without adjustment', 'McNemar pairwise' ], answer:1, rationale:'Dunn’s test controls family‑wise error for NP multiple comparisons.', tags:['post hoc'] },
+          { id:'M4Q10', stem:'A 2×2 table with very small expected counts should be analysed with:', options:[ 'Chi‑square with Yates correction only', 'Fisher’s exact test', 'Z‑test for proportions regardless of counts', 'Wilcoxon signed‑rank' ], answer:1, rationale:'Fisher’s exact is robust for very small expected counts.', tags:['fisher'] },
+        ]
+      },
+      {
+        id: 'M5', title: 'Module 5 – Disease Frequency, Demography & Vital Statistics',
+        lo: ['Incidence/prevalence', 'Risk measures (OR/RR/RD)', 'Rates/ratios/proportions', 'Demography & fertility', 'Vital stats'],
+        items:[
+          { id:'M5Q1', stem:'Incidence measures:', options:[ 'Existing cases at a time point', 'New cases over a period among at‑risk population', 'Total cases ever observed', 'Probability of death only' ], answer:1, rationale:'Incidence focuses on new onsets among those at risk.', tags:['incidence'] },
+          { id:'M5Q2', stem:'Prevalence increases when:', options:[ 'Incidence falls and duration shortens', 'Incidence rises and/or duration lengthens', 'Case fatality rises sharply', 'Cure rate increases' ], answer:1, rationale:'P ≈ I × duration; higher I or longer duration → higher prevalence.', tags:['prevalence'] },
+          { id:'M5Q3', stem:'Relative Risk (RR) is defined as:', options:[ 'Risk in exposed / risk in unexposed', 'Odds in cases / odds in controls', 'Risk difference × 100%', '1 − specificity' ], answer:0, rationale:'RR compares cumulative incidence between exposure groups.', tags:['RR'] },
+          { id:'M5Q4', stem:'Odds Ratio is commonly used in:', options:[ 'Cohort studies', 'Case–control studies', 'Cross‑sectional surveys only', 'Randomized trials only' ], answer:1, rationale:'OR is the natural measure in case–control designs.', tags:['OR'] },
+          { id:'M5Q5', stem:'Rate is best described as:', options:[ 'A proportion without time', 'A ratio ignoring person‑time', 'Occurrence per unit person‑time', 'Always between 0 and 1' ], answer:2, rationale:'Rates incorporate time at risk (person‑time).', tags:['rates'] },
+          { id:'M5Q6', stem:'Crude birth rate uses as denominator:', options:[ 'Women of reproductive age only', 'Total mid‑year population', 'Number of live births', 'Person‑years at risk' ], answer:1, rationale:'CBR = live births / mid‑year population × constant.', tags:['vital stats'] },
+          { id:'M5Q7', stem:'Risk difference (RD) equals:', options:[ 'Risk_exposed − Risk_unexposed', 'RR − 1', 'OR − 1', '1 − Risk_unexposed' ], answer:0, rationale:'RD is absolute risk change.', tags:['RD'] },
+          { id:'M5Q8', stem:'Hospital mortality rate typically uses denominator:', options:[ 'All discharges + deaths', 'Mid‑year population', 'Total admissions in district', 'Person‑time of ward staff' ], answer:0, rationale:'Often deaths / (discharges + deaths) × 100.', tags:['hospital stats'] },
+          { id:'M5Q9', stem:'Fertility is commonly summarised by:', options:[ 'General fertility rate (GFR)', 'Case fatality rate', 'Attack rate only', 'Hospital stay ratio' ], answer:0, rationale:'GFR relates live births to women 15–49 years.', tags:['fertility'] },
+          { id:'M5Q10', stem:'95% CI for RR that includes 1 implies:', options:[ 'Statistically significant association', 'No statistically significant association at α=0.05', 'Confounding proven', 'Effect modification proven' ], answer:1, rationale:'If CI spans null (1), association is not statistically significant at that α.', tags:['CI'] },
+        ]
+      },
+      {
+        id: 'M6', title: 'Module 6 – Correlation, Regression & Survival Analysis',
+        lo: ['Correlation (Pearson/Spearman)', 'Linear/multiple regression', 'Logistic regression', 'Survival analysis basics'],
+        items:[
+          { id:'M6Q1', stem:'Pearson correlation quantifies:', options:[ 'Monotonic association of ranks', 'Linear association of two continuous variables', 'Association of two binary variables', 'Causal effect of X on Y' ], answer:1, rationale:'Pearson r measures linear correlation for continuous variables.', tags:['pearson'] },
+          { id:'M6Q2', stem:'Spearman ρ is preferred when:', options:[ 'Data are ordinal or non‑normal', 'Perfect linearity exists', 'Outliers absent and normality holds', 'Outcome is binary' ], answer:0, rationale:'Spearman uses ranks; robust to non‑normality/outliers.', tags:['spearman'] },
+          { id:'M6Q3', stem:'In simple linear regression, the slope β₁ represents:', options:[ 'Expected change in Y for one‑unit increase in X', 'Proportion of variance explained', 'Intercept at X=1', 'Correlation coefficient' ], answer:0, rationale:'β₁ is marginal effect per unit X.', tags:['slr'] },
+          { id:'M6Q4', stem:'Multiple linear regression requires which key assumption?', options:[ 'Binary outcome', 'Homoscedastic residuals & linearity', 'Poisson errors', 'Proportional hazards' ], answer:1, rationale:'OLS assumes linearity, independence, normality (for inference), and constant variance.', tags:['mlr'] },
+          { id:'M6Q5', stem:'Logistic regression models:', options:[ 'Mean of a continuous outcome', 'Odds of a binary outcome via logit link', 'Counts per unit time', 'Time‑to‑event hazards' ], answer:1, rationale:'Logistic models log‑odds of binary response.', tags:['logistic'] },
+          { id:'M6Q6', stem:'An adjusted Odds Ratio from logistic regression reflects:', options:[ 'Crude association only', 'Association adjusted for covariates included in model', 'Causal effect guaranteed', 'Relative risk directly' ], answer:1, rationale:'Adjustment accounts for included confounders but does not ensure causality.', tags:['adjusted OR'] },
+          { id:'M6Q7', stem:'Kaplan–Meier curve summarises:', options:[ 'Cumulative incidence of event over time', 'Instantaneous hazard only', 'Mean difference between groups', 'Odds over time' ], answer:0, rationale:'KM estimates survival function (1 − cumulative incidence).', tags:['KM'] },
+          { id:'M6Q8', stem:'Cox proportional hazards model assumes:', options:[ 'Hazards are proportional over time between groups', 'Linear relationship between Y and X', 'Normal residuals', 'Binary predictor only' ], answer:0, rationale:'Key PH assumption for Cox regression.', tags:['cox'] },
+          { id:'M6Q9', stem:'R² in linear regression denotes:', options:[ 'Proportion of variance in Y explained by Xs', 'Probability model is correct', 'P‑value of slope', 'Adjusted mean difference' ], answer:0, rationale:'R² measures explained variance.', tags:['r2'] },
+          { id:'M6Q10', stem:'A major pitfall indicating overfitting is:', options:[ 'High bias, low variance', 'Excellent training fit, poor external validation', 'Small number of predictors', 'Using cross‑validation' ], answer:1, rationale:'Overfit models fail to generalise beyond training data.', tags:['overfitting'] },
+        ]
+      }
+    ];
+
+    // -------- Render UI --------
+    const quizDiv = document.getElementById('quiz');
+    const moduleFilter = document.getElementById('moduleFilter');
+    const reportCard = document.getElementById('reportCard');
+    const reportDiv = document.getElementById('report');
+
+    // Populate filter
+    QUIZ.forEach(m => {
+      const o = document.createElement('option');
+      o.value = m.id; o.textContent = `${m.id} – ${m.title.replace(/^[^–]+– /,'')}`;
+      moduleFilter.appendChild(o);
+    });
+
+    function render(filter='ALL'){
+      quizDiv.innerHTML='';
+      const modules = filter==='ALL' ? QUIZ : QUIZ.filter(m=>m.id===filter);
+      modules.forEach(m => {
+        const sec = document.createElement('section');
+        sec.className='q';
+        const h = document.createElement('h3');
+        h.textContent = `${m.id}: ${m.title}`;
+        sec.appendChild(h);
+        const meta = document.createElement('div');
+        meta.className='meta';
+        meta.textContent = `Learning objectives: ${m.lo.join(' • ')}`;
+        sec.appendChild(meta);
+        m.items.forEach((it, idx) => {
+          const q = document.createElement('div');
+          q.className='q';
+          q.id = it.id;
+          const h4 = document.createElement('h4');
+          h4.textContent = `${idx+1}. ${it.stem}`;
+          q.appendChild(h4);
+          it.options.forEach((opt, i)=>{
+            const label = document.createElement('label');
+            label.className='opt';
+            const r = document.createElement('input');
+            r.type='radio'; r.name=it.id; r.value=i; r.required = true;
+            label.appendChild(r);
+            const span = document.createElement('span');
+            span.textContent = ' ' + opt;
+            label.appendChild(span);
+            q.appendChild(label);
+          });
+          const small = document.createElement('div');
+          small.className='meta';
+          small.textContent = `Tags: ${it.tags?.join(', ')||''}`;
+          q.appendChild(small);
+          sec.appendChild(q);
+        });
+        quizDiv.appendChild(sec);
+      });
+    }
+
+    render();
+
+    moduleFilter.addEventListener('change', e => render(e.target.value));
+
+    document.getElementById('btnSelectAll').onclick = () => { moduleFilter.value='ALL'; render('ALL'); };
+    document.getElementById('btnCollapse').onclick = () => {
+      // collapse by showing only module headers
+      quizDiv.querySelectorAll('.q .q').forEach(q=>q.classList.toggle('hidden'));
+    };
+
+    // -------- Evaluation & Report --------
+    function collectResponses(){
+      const responses = [];
+      QUIZ.forEach(m => m.items.forEach(it => {
+        const sel = document.querySelector(`input[name="${it.id}"]:checked`);
+        responses.push({ id: it.id, module: m.id, answer: sel ? Number(sel.value) : null });
+      }));
+      return responses;
+    }
+
+    function grade(responses){
+      const key = new Map();
+      QUIZ.forEach(m => m.items.forEach(it => key.set(it.id, {module:m.id, correct: it.answer})));
+      const byModule = new Map();
+      let total=0, correct=0, attempted=0;
+      responses.forEach(r => {
+        const k = key.get(r.id);
+        const ok = r.answer===k.correct;
+        attempted += (r.answer!==null)?1:0;
+        correct += ok?1:0; total += 1;
+        if(!byModule.has(k.module)) byModule.set(k.module,{total:0,correct:0});
+        const bm = byModule.get(k.module); bm.total+=1; bm.correct+= ok?1:0;
+      });
+      return { total, correct, attempted, byModule };
+    }
+
+    function buildReport(responses){
+      const { total, correct, attempted, byModule } = grade(responses);
+      const pct = total? Math.round(100*correct/total):0;
+      let band = 'mid'; if(pct>=80) band='good'; else if(pct<50) band='bad';
+
+      const name = (document.getElementById('name').value||'Anonymous').trim();
+      const email = (document.getElementById('email').value||'').trim();
+      const when = new Date().toLocaleString();
+
+      // Build module table
+      let modHTML = '<ul>';
+      QUIZ.forEach(m => {
+        const r = byModule.get(m.id) || {total:m.items.length, correct:0};
+        const p = Math.round(100*r.correct/r.total);
+        const cls = p>=80?'good':(p<50?'bad':'mid');
+        modHTML += `<li><strong>${m.id}</strong> – ${m.title}: <span class="${cls}">${r.correct}/${r.total} (${p}%)</span></li>`;
+      });
+      modHTML += '</ul>';
+
+      // Detailed review
+      let detail = '';
+      QUIZ.forEach(m => {
+        detail += `<details><summary><strong>${m.id}</strong> – ${m.title}</summary>`;
+        m.items.forEach(it => {
+          const sel = responses.find(r=>r.id===it.id)?.answer;
+          const ok = sel===it.answer;
+          const cls = ok?'good':'bad';
+          detail += `<div class="q"><div class="meta">${it.id}</div><h4>${it.stem}</h4>`;
+          it.options.forEach((o,i)=>{
+            const mark = (i===it.answer?'✓':'');
+            const chosen = (sel===i?' (your answer)':'');
+            const style = (i===it.answer? 'style="border-color: rgba(52,211,153,.5)"' : (sel===i ? 'style="border-color: rgba(239,68,68,.5)"' : ''));
+            detail += `<div class="opt" ${style}>${String.fromCharCode(65+i)}. ${o} ${mark}${chosen}</div>`;
+          });
+          detail += `<div class="meta ${cls}"><em>${ok?'Correct':'Incorrect'}</em> — Rationale: ${it.rationale}</div></div>`;
+        });
+        detail += '</details>';
+      });
+
+      reportDiv.innerHTML = `
+        <div class="row" style="align-items:center;justify-content:space-between">
+          <div>
+            <div class="meta">Candidate</div>
+            <div><strong>${name}</strong>${email?` · <span class="meta">${email}</span>`:''}</div>
+            <div class="meta">Date: ${when}</div>
+          </div>
+          <div class="score ${band}">${correct}/${total} (${pct}%)</div>
+        </div>
+        <hr style="border-color:rgba(255,255,255,.1)">
+        <h3>Module‑wise performance</h3>
+        ${modHTML}
+        <h3>Detailed Review & Rationales</h3>
+        ${detail}
+      `;
+
+      reportCard.classList.remove('hidden');
+      window.scrollTo({ top: reportCard.offsetTop-10, behavior: 'smooth' });
+
+      // Return a machine‑readable payload for optional download
+      const payload = {
+        candidate:{name,email},
+        submittedAt: when,
+        summary:{ total, correct, attempted, percent:pct },
+        modules: QUIZ.map(m=>{
+          const r = byModule.get(m.id) || {total:m.items.length, correct:0};
+          return { id:m.id, title:m.title, total:r.total, correct:r.correct, percent: Math.round(100*r.correct/r.total) };
+        }),
+        responses: QUIZ.flatMap(m => m.items.map(it=>({
+          id: it.id, module: m.id, stem: it.stem, options: it.options, correct: it.answer,
+          chosen: responses.find(r=>r.id===it.id)?.answer ?? null, rationale: it.rationale
+        })))
+      };
+      return payload;
+    }
+
+    document.getElementById('submitBtn').addEventListener('click', () => {
+      const responses = collectResponses();
+      // Require all shown questions answered
+      const visibleQs = Array.from(document.querySelectorAll('#quiz input[type=radio]'))
+        .reduce((set, el)=> set.add(el.name), new Set());
+      let allAnswered = true;
+      visibleQs.forEach(name => { if(!document.querySelector(`input[name="${name}"]:checked`)) allAnswered=false; });
+      if(!allAnswered){ alert('Please answer all visible questions before submitting.'); return; }
+      const payload = buildReport(responses);
+      // Save for download button
+      window.__lastReport = payload;
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      document.querySelectorAll('input[type=radio]').forEach(r=> r.checked=false);
+      reportCard.classList.add('hidden');
+      window.__lastReport = null;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    document.getElementById('btnPrint').addEventListener('click', () => window.print());
+
+    document.getElementById('btnDownloadJson').addEventListener('click', () => {
+      const data = window.__lastReport || { error: 'No submission yet.' };
+      const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'AYPG-BS_Assessment_Report.json'; a.click();
+      URL.revokeObjectURL(url);
+    });
+  </script>
+</body>
+</html>
